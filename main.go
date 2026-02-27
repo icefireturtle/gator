@@ -8,10 +8,21 @@ import (
 
 func main() {
 	fmt.Println("Welcome to Gator!")
-	cfg := config.Read(".gatorconfig.json")
-	fmt.Printf("Database URL: %s\n", cfg.DBUrl)
+	cfg, err := config.Read()
+	if err != nil {
+		fmt.Printf("Error reading config file: %s", err)
+		return
+	}
 
-	config.SetUser("lane")
-	fmt.Printf("Set user %s in config file", cfg.User)
+	cfg.SetUser("lane")
+
+	cfg, err = config.Read()
+	if err != nil {
+		fmt.Printf("Error reading config file: %s", err)
+		return
+	}
+
+	fmt.Printf("Database URL: %s\n", cfg.DBUrl)
+	fmt.Printf("Set user %s in config file\n", cfg.User)
 
 }
