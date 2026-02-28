@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"gator/internal/config"
 )
@@ -14,15 +15,33 @@ func main() {
 		return
 	}
 
-	cfg.SetUser("lane")
-
-	cfg, err = config.Read()
-	if err != nil {
-		fmt.Printf("Error reading config file: %s", err)
-		return
+	s := state{
+		cfg: &cfg,
 	}
 
-	fmt.Printf("Database URL: %s\n", cfg.DBUrl)
-	fmt.Printf("Set user %s in config file\n", cfg.User)
+	cmds := Commands{
+		cmd: make(map[string]func(*state, command) error),
+	}
+
+	cmds.register("login", loginHandler)
+
+	if len(os.Args) < 2 {
+		fmt.Printf("need program name and argument\n")
+		os.Exit(1)
+	}
+
+	cmdName := os.Args[1]
+	cmdArgs := os.Args[2:]
+
+	cmd := command{
+		name: cmdName,
+		args: cmdArgs,
+	}
+
+	err = cmds.run(&s, cmd)
+	if err != nil {
+		fmt.Printf("error running command: %s\n", err)
+		os.Exit(1)
+	}
 
 }
