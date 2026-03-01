@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"gator/internal/config"
+	"gator/internal/database"
 )
 
 type state struct {
 	cfg *config.Config
+	db  *database.Queries
 }
 
 type command struct {
@@ -35,20 +38,22 @@ func (c *Commands) register(name string, f func(*state, command) error) {
 }
 
 func loginHandler(s *state, cmd command) error {
-	if len(cmd.args) == 0 {
-		return fmt.Errorf("No arguments provided")
+
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("usage: login <name>")
 	}
 
-	if len(cmd.args) > 1 {
-		return fmt.Errorf("Too many arguments")
+	user, err := s.db.GetUser(context.Background(), cmd.args[0])
+	if err != nil {
+		return fmt.Errorf("user does not exist: %w", err)
 	}
 
-	err := s.cfg.SetUser(cmd.args[0])
+	err = s.cfg.SetUser(user.Name)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Set user %s in config file\n", s.cfg.User)
+	fmt.Printf("Set user %s in config file\n", user.Name)
 
 	return nil
 }
