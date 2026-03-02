@@ -7,6 +7,11 @@ import (
 	"html"
 	"io"
 	"net/http"
+	"time"
+
+	"gator/internal/database"
+
+	"github.com/google/uuid"
 )
 
 type RSSItem struct {
@@ -72,5 +77,43 @@ func aggHandler(s *state, cmd command) error {
 		return fmt.Errorf("unable to fetch feed %w", err)
 	}
 	fmt.Printf("%+v\n", fetch)
+	return nil
+}
+
+func addFeedHandler(s *state, cmd command) error {
+	if len(cmd.args) != 2 {
+		return fmt.Errorf("usage: addfeed <name> <url>")
+	}
+
+	user, err := s.db.GetUser(context.Background(), s.cfg.User)
+	if err != nil {
+		return fmt.Errorf("user does not exist: %w", err)
+	}
+
+	name := cmd.args[0]
+	url := cmd.args[1]
+
+	params := database.AddFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      name,
+		Url:       url,
+		UserID:    user.ID,
+	}
+
+	feed, err := s.db.AddFeed(context.Background(), params)
+	if err != nil {
+		return fmt.Errorf("error adding feed %w", err)
+	}
+
+	fmt.Println("Successfully added feed to database")
+	fmt.Printf("* Name: %s\n", feed.Name)
+	fmt.Printf("* Url: %s\n", feed.Url)
+	fmt.Printf("* ID: %s\n", feed.ID)
+	fmt.Printf("* Created At: %s\n", feed.CreatedAt)
+	fmt.Printf("* Updated At: %s\n", feed.UpdatedAt)
+	fmt.Printf("* UserID: %s\n", feed.UserID)
+
 	return nil
 }
