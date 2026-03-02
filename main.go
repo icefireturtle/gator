@@ -40,6 +40,7 @@ func main() {
 	cmds.register("login", loginHandler)
 	cmds.register("register", registerHandler)
 	cmds.register("reset", resetHandler)
+	cmds.register("users", listHandler)
 
 	if len(os.Args) < 2 {
 		fmt.Printf("need program name and argument\n")
