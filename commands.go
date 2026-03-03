@@ -57,3 +57,13 @@ func loginHandler(s *state, cmd command) error {
 
 	return nil
 }
+
+func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(*state, command) error {
+	return func(s *state, cmd command) error {
+		checkuser, err := s.db.GetUser(context.Background(), s.cfg.User)
+		if err != nil {
+			return fmt.Errorf("user does not exist: %w", err)
+		}
+		return handler(s, cmd, checkuser)
+	}
+}

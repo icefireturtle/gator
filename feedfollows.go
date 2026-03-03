@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func feedFollowsHandler(s *state, cmd command) error {
+func feedFollowsHandler(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("usage: follow <url>")
 	}
@@ -20,11 +20,6 @@ func feedFollowsHandler(s *state, cmd command) error {
 	feed, err := s.db.GetFeedByUrl(context.Background(), url)
 	if err != nil {
 		return fmt.Errorf("error retreiving feed: %w", err)
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.cfg.User)
-	if err != nil {
-		return fmt.Errorf("user does not exist: %w", err)
 	}
 
 	params := database.CreateFeedFollowParams{
