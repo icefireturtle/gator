@@ -44,6 +44,8 @@ func main() {
 	cmds.register("agg", aggHandler)
 	cmds.register("addfeed", addFeedHandler)
 	cmds.register("feeds", listFeedHandler)
+	cmds.register("follow", feedFollowsHandler)
+	cmds.register("following", listFollowsHandler)
 
 	if len(os.Args) < 2 {
 		fmt.Printf("need program name and argument\n")

@@ -93,7 +93,7 @@ func addFeedHandler(s *state, cmd command) error {
 	name := cmd.args[0]
 	url := cmd.args[1]
 
-	params := database.AddFeedParams{
+	fparams := database.AddFeedParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -102,9 +102,22 @@ func addFeedHandler(s *state, cmd command) error {
 		UserID:    user.ID,
 	}
 
-	feed, err := s.db.AddFeed(context.Background(), params)
+	feed, err := s.db.AddFeed(context.Background(), fparams)
 	if err != nil {
 		return fmt.Errorf("error adding feed %w", err)
+	}
+
+	wparams := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		FeedID:    feed.ID,
+		UserID:    user.ID,
+	}
+
+	follows, err := s.db.CreateFeedFollow(context.Background(), wparams)
+	if err != nil {
+		return fmt.Errorf("error creating feed follow %w", err)
 	}
 
 	fmt.Println("Successfully added feed to database")
@@ -113,7 +126,8 @@ func addFeedHandler(s *state, cmd command) error {
 	fmt.Printf("* ID: %s\n", feed.ID)
 	fmt.Printf("* Created At: %s\n", feed.CreatedAt)
 	fmt.Printf("* Updated At: %s\n", feed.UpdatedAt)
-	fmt.Printf("* UserID: %s\n", feed.UserID)
+	fmt.Printf("* User ID: %s\n", feed.UserID)
+	fmt.Printf("* Follow ID: %s\n", follows.ID)
 
 	return nil
 }

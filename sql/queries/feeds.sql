@@ -8,3 +8,8 @@ RETURNING *;
 SELECT f.name, f.url, u.name
 FROM feeds f
 JOIN users u on f.user_id = u.id;
+
+-- name: GetFeedByUrl :one
+SELECT id
+FROM feeds
+WHERE url=$1;

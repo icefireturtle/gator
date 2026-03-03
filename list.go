@@ -34,3 +34,17 @@ func listFeedHandler(s *state, cmd command) error {
 	}
 	return nil
 }
+
+func listFollowsHandler(s *state, cmd command) error {
+	follows, err := s.db.GetFeedFollowsForUser(context.Background(), s.cfg.User)
+	if err != nil {
+		return fmt.Errorf("unable to retreive follows")
+	}
+
+	fmt.Printf("User %s currently follows:\n", s.cfg.User)
+
+	for _, follows := range follows {
+		fmt.Printf("* Name: %s\n", follows.FeedName)
+	}
+	return nil
+}
