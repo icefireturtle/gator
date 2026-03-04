@@ -47,6 +47,7 @@ func main() {
 	cmds.register("follow", middlewareLoggedIn(feedFollowsHandler))
 	cmds.register("following", middlewareLoggedIn(listFollowsHandler))
 	cmds.register("unfollow", middlewareLoggedIn(unfollowHandler))
+	cmds.register("browse", middlewareLoggedIn(browseHandler))
 
 	if len(os.Args) < 2 {
 		fmt.Printf("need program name and argument\n")

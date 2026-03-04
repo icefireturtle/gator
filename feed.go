@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
 	"fmt"
 	"html"
 	"io"
+	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"gator/internal/database"
@@ -153,8 +156,28 @@ func scrapeFeeds(s *state) error {
 	}
 
 	for _, item := range fetched.Channel.Item {
-		fmt.Printf("* Title: %s\n", item.Title)
-	}
+		published, _ := time.Parse(time.RFC1123Z, item.PubDate)
 
+		params := database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			Title:       sql.NullString{String: item.Title, Valid: true},
+			Url:         sql.NullString{String: item.Link, Valid: true},
+			Description: sql.NullString{String: item.Description, Valid: true},
+			PublishedAt: published,
+			FeedID:      next.ID,
+		}
+
+		post, err := s.db.CreatePost(context.Background(), params)
+		if err != nil {
+			if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+				continue
+			} else {
+				log.Printf("error creating post %v", err)
+			}
+		}
+		log.Printf("Post saved: %s", post.Title)
+	}
 	return nil
 }
