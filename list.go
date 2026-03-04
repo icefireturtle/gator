@@ -45,8 +45,13 @@ func listFollowsHandler(s *state, cmd command, user database.User) error {
 
 	fmt.Printf("User %s currently follows:\n", user.Name)
 
+	if len(follows) == 0 {
+		fmt.Printf("* Nothing. Follow a feed!\n")
+	}
+
 	for _, follows := range follows {
 		fmt.Printf("* Name: %s\n", follows.FeedName)
 	}
+
 	return nil
 }
